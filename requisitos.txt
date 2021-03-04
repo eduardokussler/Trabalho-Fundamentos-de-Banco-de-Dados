@@ -1,0 +1,66 @@
+Entidades:
+ * App - especializa em Jogo e Dlc (se relaciona com jogos)
+    Atributos: 
+      Nome  - identifica? - obrigatório
+      Código - idenficador - obrigatório
+      Data de Lançamento - obrigatório
+      Preço - obrigatório
+      Desconto - obrigatório (em porcentagem)
+      Links - opcional e multivalorado
+      Analises_especialista - opcional e composto (quem, nota, resumo)
+      Descrição - obrigatório (texto/html)
+      Icone - obrigatório
+      Screenshots - multivalorado - opcional
+      videos - multivalorado - opcional
+ * Avaliações
+    Relacionamento: com Usuário e app
+    Atributos:
+      Recomenda - boolean - obrigatório
+      review - texto - opcional
+      OBS: Decidimos não modelar comentários de análises nem as avaliações das análises,
+      pois não era relevante a parte de loja da steam.
+ 
+ * Usuário 
+    relacionamento Tags com App (m-n)
+      Atributos:
+        nome - idenficador
+    relacionamento: com app, avaliações, Carrinho
+    Atributos_entidade:
+
+ * Opção 1 Empresa especializa em Distribuidora e Desenvolvedora
+ * Opção 2 Empresa tem relacionamento com Distribuidora e Desenvolvedora
+ * Gênero
+    relacionamento: com app
+    Atributos:
+      nome - idenficador
+
+ * Categoria
+    Relacionamento: com app
+    Atributos:
+      nome - idenficador,
+      icone - obrigatório,
+
+ * Bundle - se relaciona com App
+    Atributos:
+      Data_fim
+
+ * Idioma 
+    Relacionamento com App
+    Atributos_entidade:
+      nome - indentificador
+    Atributos do relacionamento:
+      Interface - boolean - indica que a interface está naquele idioma
+      Dublagem - boolean - indica que a interface está naquele idioma
+      Legenda - boolean - indica que a interface está naquele idioma
+ * Plataforma 
+    relacionamento: Requisitos com app
+      Atributos:
+        Minimo - texto (opcional)
+        Recomendado - texto (opcional)
+ * Compras (histórico)
+ * Carrinho
+ * Noticia ?
+
+OBS: caminho do jogo na loja, teria que implementar?
+ query para ver os similares
+ query para ver os outros titulos da mesma empresa
