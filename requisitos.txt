@@ -1,17 +1,35 @@
 Entidades:
- * App - especializa em Jogo e Dlc (se relaciona com jogos)
-    Atributos: 
-      Nome  - identifica? - obrigatório
-      Código - idenficador - obrigatório
-      Data de Lançamento - obrigatório
-      Preço - obrigatório
-      Desconto - obrigatório (em porcentagem)
-      Links - opcional e multivalorado
-      Analises_especialista - opcional e composto (quem, nota, resumo)
-      Descrição - obrigatório (texto/html)
-      Icone - obrigatório
-      Screenshots - multivalorado - opcional
-      videos - multivalorado - opcional
+ * Produto 
+  Atributos:
+    Nome  - identifica? - obrigatório
+    Código - idenficador - obrigatório
+    Preço - obrigatório
+    Desconto - obrigatório (em porcentagem)
+    Data_fim - opcional
+    Descrição - obrigatório (texto/html)
+    Icone - obrigatório
+  especializa em:
+    * App - especializa em Software e Dlc (se relaciona com Softwares)
+        Atributos: 
+          Data de Lançamento - obrigatório
+          Links - opcional e multivalorado
+          Analises_especialista - opcional e composto (quem, nota, resumo)
+          Screenshots - multivalorado - opcional
+          videos - multivalorado - opcional
+          acesso_antecipado - opcional
+        Software especializa em Software_acesso_antecipado
+        * Software especializa em Software_acesso_antecipado
+          Atributos:
+            Porque - obrigatório
+            Tempo - obrigatório
+            Diferença completa - obrigatório
+            Estado_atual - obrigatório
+            Alteração_preco - obrigatório
+            comunidade - obrigatório
+    * Bundle - se relaciona com (m-n) App
+     
+
+
  * Avaliações
     Relacionamento: com Usuário e app
     Atributos:
@@ -21,15 +39,22 @@ Entidades:
       pois não era relevante a parte de loja da steam.
  
  * Usuário 
+    relaciona com Produto (m-n) - Carrinho (dar de presente?)
+
     relacionamento Tags com App (m-n)
       Atributos:
         nome - idenficador
-    relacionamento: com app, avaliações, Carrinho
+    relacionamento: com app(biblioteca), avaliações
     Atributos_entidade:
 
- * Opção 1 Empresa especializa em Distribuidora e Desenvolvedora
- * Opção 2 Empresa tem relacionamento com Distribuidora e Desenvolvedora
- * Gênero
+
+ * Empresa
+    tem relacionamento como Distribuidora com app
+    e tem relacionamento como Desenvolvedora com app
+    Atributos:
+      nome: obrigatório
+      id: idenficador
+ * Gênero 
     relacionamento: com app
     Atributos:
       nome - idenficador
@@ -40,9 +65,7 @@ Entidades:
       nome - idenficador,
       icone - obrigatório,
 
- * Bundle - se relaciona com App
-    Atributos:
-      Data_fim
+
 
  * Idioma 
     Relacionamento com App
@@ -57,10 +80,44 @@ Entidades:
       Atributos:
         Minimo - texto (opcional)
         Recomendado - texto (opcional)
+ 
  * Compras (histórico)
- * Carrinho
- * Noticia ?
+  relaciona com Usuário
+  relaciona com Forma de Pagamento
+  relaciona com Item-comprado
+    Atributos:
+      id: obrigatório
+      data: obrigatório
+      total: obrigatório
 
-OBS: caminho do jogo na loja, teria que implementar?
+ * Item-comprado
+    Atributos:
+      nome - obrigatório
+      preco - obrigatório
+      id - obrigatório
+      Desconto: obrigatório
+
+* Forma de Pagamento
+  relaciona com compra (pagamento)
+  Atributos:
+    nome - obrigatório
+
+
+ * Noticia
+    relaciona com Software
+    Atributos:
+      Data - obrigatório
+      titulo - obrigatório
+      Texto - obrigatório
+      multimedia - opcional
+
+ * Série
+  Relaciona com App (1-n)
+  Atributos:
+    id: indentificador
+    nome: único
+
+OBS: caminho do Software na loja, teria que implementar?
+    como fazer genero principal?
  query para ver os similares
  query para ver os outros titulos da mesma empresa
