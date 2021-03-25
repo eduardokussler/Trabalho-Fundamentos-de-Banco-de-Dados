@@ -1,199 +1,124 @@
-/* modelo_logico: */
+/* modelo_logico_com_tipos: */
 
 CREATE TABLE Produto (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) NOT NULL,
-    preco DECIMAL(6,2) NOT NULL,
-    desconto SMALLINT NOT NULL,
+    id INTEGER PRIMARY KEY,
+    nome VARCHAR,
+    preco DECIMAL,
+    desconto SMALLINT,
     data_fim_desconto TIMESTAMP,
-    descricao VARCHAR(1000) NOT NULL
+    descricao VARCHAR
 );
 
 CREATE TABLE App (
-    data_lancamento TIMESTAMP NOT NULL,
-    fk_analises_especialistas_PK INT NOT NULL,
-    fk_links_links_PK INT NOT NULL,
-    fk_Produto_id INT PRIMARY KEY NOT NULL,
-    fk_Serie_id INT NOT NULL
-);
-
-CREATE TABLE Jogo (
-    fk_App_fk_Produto_id INT PRIMARY KEY NOT NULL
-);
-
-CREATE TABLE Conjunto (
-    fk_Produto_id INT PRIMARY KEY NOT NULL,
-    Conjunto_TIPO INT NOT NULL
-);
-
-CREATE TABLE Dlc (
-    fk_App_fk_Produto_id INT PRIMARY KEY NOT NULL,
-    fk_Jogo_fk_App_fk_Produto_id INT NOT NULL
-);
-
-CREATE TABLE Jogo_acesso_antecipado (
-    porque VARCHAR(500) NOT NULL,
-    tempo VARCHAR(500) NOT NULL,
-    diferenca_completa VARCHAR(500) NOT NULL,
-    estado_atual VARCHAR(500) NOT NULL,
-    alteracao_preco VARCHAR(500) NOT NULL,
-    comunidade VARCHAR(500) NOT NULL,
-    fk_Jogo_fk_App_fk_Produto_id INT PRIMARY KEY NOT NULL
-);
-
-CREATE TABLE Usuario (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL
-);
-
-CREATE TABLE Empresa (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE Genero (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) UNIQUE NOT NULL
+    data_lancamento TIMESTAMP,
+    fk_Produto_id INTEGER PRIMARY KEY,
+    fk_Empresa_id_desenvolvedora INTEGER,
+    fk_Empresa_id_distribuidora INTEGER
 );
 
 CREATE TABLE Categoria (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) UNIQUE NOT NULL
-);
-
-CREATE TABLE Idioma (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) UNIQUE NOT NULL
-);
-
-CREATE TABLE Plataforma (
-    id SERIAL PRIMARY KEY NOT NULL,
-    nome VARCHAR(50) UNIQUE NOT NULL
-);
-
-CREATE TABLE Compras (
-    id SERIAL PRIMARY KEY NOT NULL,
-    data TIMESTAMP NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    fk_Usuario_id INT NOT NULL,
-    fk_Cartao_Credito_id INT NOT NULL,
-    Aprovado BOOLEAN NOT NULL
-);
-
-CREATE TABLE Serie (
-    nome VARCHAR(50) NOT NULL,
-    id SERIAL PRIMARY KEY NOT NULL
-);
-
-CREATE TABLE Cartao_Credito (
-    id SERIAL PRIMARY KEY NOT NULL
-    nro_cartao CHAR(19) UNIQUE NOT NULL,
-    nro_sec_cartao CHAR(3) NOT NULL,
-    validade_cartao DATE NOT NULL,
-    nome VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE analises_especialistas (
-    analises_especialistas_PK SERIAL NOT NULL PRIMARY KEY NOT NULL,
-    quem VARCHAR(50) NOT NULL,
-    nota DECIMAL(4,2) NOT NULL,
-    resumo VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE links (
-    links_PK SERIAL NOT NULL PRIMARY KEY NOT NULL,
-    links VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE Composicao (
-    fk_App_fk_Produto_id INT NOT NULL,
-    fk_Conjunto_fk_Produto_id INT NOT NULL
-);
-
-CREATE TABLE Avaliacoes (
-    fk_App_fk_Produto_id INT NOT NULL,
-    fk_Usuario_id INT NOT NULL,
-    recomenda BOOLEAN NOT NULL,
-    comentario VARCHAR(1000)
-);
-
-CREATE TABLE Carrinho (
-    fk_Produto_id INT NOT NULL,
-    fk_Usuario_id INT NOT NULL
-);
-
-CREATE TABLE Tags (
-    fk_App_fk_Produto_id INT NOT NULL,
-    fk_Usuario_id INT NOT NULL,
-    id SERIAL PRIMARY KEY NOT NULL
-);
-
-CREATE TABLE Desenvolvedora (
-    fk_Empresa_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL
-);
-
-CREATE TABLE Distribuidora (
-    fk_Empresa_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL
-);
-
-CREATE TABLE Classificacao (
-    fk_Genero_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL
+    nome VARCHAR UNIQUE,
+    id INTEGER PRIMARY KEY
 );
 
 CREATE TABLE Categorizacao (
-    fk_Categoria_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL
+    fk_Categoria_id INTEGER,
+    fk_App_fk_Produto_id INTEGER
 );
 
-CREATE TABLE Linguagem (
-    fk_Idioma_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL,
-    interface BOOLEAN NOT NULL,
-    dublagem BOOLEAN NOT NULL,
-    legenda BOOLEAN NOT NULL
+CREATE TABLE Genero (
+    id INTEGER PRIMARY KEY,
+    nome VARCHAR UNIQUE
 );
 
-CREATE TABLE Requisitos (
-    fk_Plataforma_id INT NOT NULL,
-    fk_App_fk_Produto_id INT NOT NULL,
-    minimo VARCHAR(400),
-    recomendado VARCHAR(400)
+CREATE TABLE Classificacao (
+    fk_Genero_id INTEGER,
+    fk_App_fk_Produto_id INTEGER
 );
 
-CREATE TABLE Item_comprado (
-    fk_App_fk_Produto_id INT NOT NULL,
-    fk_Compras_id INT NOT NULL,
-    desconto SMALLINT NOT NULL,
-    valor_original DECIMAL(6,2) NOT NULL
+CREATE TABLE Empresa (
+    id INTEGER PRIMARY KEY,
+    nome VARCHAR
+);
+
+CREATE TABLE Tags (
+    fk_App_fk_Produto_id INTEGER,
+    fk_Usuario_id INTEGER,
+    tag VARCHAR PRIMARY KEY
+);
+
+CREATE TABLE Avaliacoes (
+    fk_App_fk_Produto_id INTEGER,
+    fk_Usuario_id INTEGER,
+    recomenda BOOLEAN,
+    comentario VARCHAR
+);
+
+CREATE TABLE Pacote (
+    fk_Produto_id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE Composicao (
+    fk_App_fk_Produto_id INTEGER,
+    fk_Pacote_fk_Produto_id INTEGER
+);
+
+CREATE TABLE Jogo (
+    fk_App_fk_Produto_id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE Dlc (
+    fk_App_fk_Produto_id INTEGER PRIMARY KEY,
+    fk_Jogo_fk_App_fk_Produto_id INTEGER
+);
+
+CREATE TABLE Usuario (
+    id INTEGER PRIMARY KEY,
+    nome VARCHAR,
+    email VARCHAR UNIQUE
+);
+
+CREATE TABLE Cartao_Credito (
+    nro_cartao INTEGER PRIMARY KEY,
+    nro_sec_cartao CHAR,
+    validade_cartao DATE,
+    nome VARCHAR
 );
 
 CREATE TABLE Forma_Pagamento (
-    fk_Cartao_Credito_id INT NOT NULL,
-    fk_Usuario_id INT NOT NULL
+    fk_Cartao_Credito_nro_cartao INTEGER,
+    fk_Usuario_id INTEGER
+);
+
+CREATE TABLE Carrinho (
+    fk_Produto_id INTEGER,
+    fk_Usuario_id INTEGER
+);
+
+CREATE TABLE Compra (
+    id INTEGER PRIMARY KEY,
+    data TIMESTAMP,
+    total DECIMAL,
+    fk_Usuario_id INTEGER,
+    fk_Cartao_Credito_nro_cartao INTEGER,
+    Aprovado BOOLEAN
+);
+
+CREATE TABLE Item_comprado (
+    fk_Produto_id INTEGER,
+    fk_Compra_id INTEGER,
+    desconto SMALLINT,
+    valor_original DECIMAL
 );
  
 ALTER TABLE App ADD CONSTRAINT FK_App_2
-    FOREIGN KEY (fk_analises_especialistas_PK)
-    REFERENCES analises_especialistas (analises_especialistas_PK)
-    ON DELETE NO ACTION;
- 
-ALTER TABLE App ADD CONSTRAINT FK_App_3
-    FOREIGN KEY (fk_links_links_PK)
-    REFERENCES links (links_PK)
-    ON DELETE NO ACTION;
- 
-ALTER TABLE App ADD CONSTRAINT FK_App_4
     FOREIGN KEY (fk_Produto_id)
     REFERENCES Produto (id)
     ON DELETE CASCADE;
  
-ALTER TABLE App ADD CONSTRAINT FK_App_5
-    FOREIGN KEY (fk_Serie_id)
-    REFERENCES Serie (id)
+ALTER TABLE App ADD CONSTRAINT FK_App_3
+    FOREIGN KEY (fk_Empresa_id_desenvolvedora, fk_Empresa_id_distribuidora)
+    REFERENCES Empresa (id, id)
     ON DELETE CASCADE;
  
 ALTER TABLE Jogo ADD CONSTRAINT FK_Jogo_2
@@ -201,7 +126,7 @@ ALTER TABLE Jogo ADD CONSTRAINT FK_Jogo_2
     REFERENCES App (fk_Produto_id)
     ON DELETE CASCADE;
  
-ALTER TABLE Conjunto ADD CONSTRAINT FK_Conjunto_2
+ALTER TABLE Pacote ADD CONSTRAINT FK_Pacote_2
     FOREIGN KEY (fk_Produto_id)
     REFERENCES Produto (id)
     ON DELETE CASCADE;
@@ -216,19 +141,14 @@ ALTER TABLE Dlc ADD CONSTRAINT FK_Dlc_3
     REFERENCES Jogo (fk_App_fk_Produto_id)
     ON DELETE CASCADE;
  
-ALTER TABLE Jogo_acesso_antecipado ADD CONSTRAINT FK_Jogo_acesso_antecipado_2
-    FOREIGN KEY (fk_Jogo_fk_App_fk_Produto_id)
-    REFERENCES Jogo (fk_App_fk_Produto_id)
-    ON DELETE CASCADE;
- 
-ALTER TABLE Compras ADD CONSTRAINT FK_Compras_2
+ALTER TABLE Compra ADD CONSTRAINT FK_Compra_2
     FOREIGN KEY (fk_Usuario_id)
     REFERENCES Usuario (id)
     ON DELETE CASCADE;
  
-ALTER TABLE Compras ADD CONSTRAINT FK_Compras_3
-    FOREIGN KEY (fk_Cartao_Credito_id)
-    REFERENCES Cartao_Credito (id)
+ALTER TABLE Compra ADD CONSTRAINT FK_Compra_3
+    FOREIGN KEY (fk_Cartao_Credito_nro_cartao)
+    REFERENCES Cartao_Credito (nro_cartao)
     ON DELETE CASCADE;
  
 ALTER TABLE Composicao ADD CONSTRAINT FK_Composicao_1
@@ -237,8 +157,8 @@ ALTER TABLE Composicao ADD CONSTRAINT FK_Composicao_1
     ON DELETE RESTRICT;
  
 ALTER TABLE Composicao ADD CONSTRAINT FK_Composicao_2
-    FOREIGN KEY (fk_Conjunto_fk_Produto_id)
-    REFERENCES Conjunto (fk_Produto_id)
+    FOREIGN KEY (fk_Pacote_fk_Produto_id)
+    REFERENCES Pacote (fk_Produto_id)
     ON DELETE SET NULL;
  
 ALTER TABLE Avaliacoes ADD CONSTRAINT FK_Avaliacoes_1
@@ -271,26 +191,6 @@ ALTER TABLE Tags ADD CONSTRAINT FK_Tags_3
     REFERENCES Usuario (id)
     ON DELETE SET NULL;
  
-ALTER TABLE Desenvolvedora ADD CONSTRAINT FK_Desenvolvedora_1
-    FOREIGN KEY (fk_Empresa_id)
-    REFERENCES Empresa (id)
-    ON DELETE RESTRICT;
- 
-ALTER TABLE Desenvolvedora ADD CONSTRAINT FK_Desenvolvedora_2
-    FOREIGN KEY (fk_App_fk_Produto_id)
-    REFERENCES App (fk_Produto_id)
-    ON DELETE SET NULL;
- 
-ALTER TABLE Distribuidora ADD CONSTRAINT FK_Distribuidora_1
-    FOREIGN KEY (fk_Empresa_id)
-    REFERENCES Empresa (id)
-    ON DELETE RESTRICT;
- 
-ALTER TABLE Distribuidora ADD CONSTRAINT FK_Distribuidora_2
-    FOREIGN KEY (fk_App_fk_Produto_id)
-    REFERENCES App (fk_Produto_id)
-    ON DELETE SET NULL;
- 
 ALTER TABLE Classificacao ADD CONSTRAINT FK_Classificacao_1
     FOREIGN KEY (fk_Genero_id)
     REFERENCES Genero (id)
@@ -311,39 +211,19 @@ ALTER TABLE Categorizacao ADD CONSTRAINT FK_Categorizacao_2
     REFERENCES App (fk_Produto_id)
     ON DELETE SET NULL;
  
-ALTER TABLE Linguagem ADD CONSTRAINT FK_Linguagem_1
-    FOREIGN KEY (fk_Idioma_id)
-    REFERENCES Idioma (id)
-    ON DELETE RESTRICT;
- 
-ALTER TABLE Linguagem ADD CONSTRAINT FK_Linguagem_2
-    FOREIGN KEY (fk_App_fk_Produto_id)
-    REFERENCES App (fk_Produto_id)
-    ON DELETE SET NULL;
- 
-ALTER TABLE Requisitos ADD CONSTRAINT FK_Requisitos_1
-    FOREIGN KEY (fk_Plataforma_id)
-    REFERENCES Plataforma (id)
-    ON DELETE RESTRICT;
- 
-ALTER TABLE Requisitos ADD CONSTRAINT FK_Requisitos_2
-    FOREIGN KEY (fk_App_fk_Produto_id)
-    REFERENCES App (fk_Produto_id)
-    ON DELETE SET NULL;
- 
 ALTER TABLE Item_comprado ADD CONSTRAINT FK_Item_comprado_1
-    FOREIGN KEY (fk_App_fk_Produto_id)
-    REFERENCES App (fk_Produto_id)
+    FOREIGN KEY (fk_Produto_id)
+    REFERENCES Produto (id)
     ON DELETE RESTRICT;
  
 ALTER TABLE Item_comprado ADD CONSTRAINT FK_Item_comprado_2
-    FOREIGN KEY (fk_Compras_id)
-    REFERENCES Compras (id)
+    FOREIGN KEY (fk_Compra_id)
+    REFERENCES Compra (id)
     ON DELETE SET NULL;
  
 ALTER TABLE Forma_Pagamento ADD CONSTRAINT FK_Forma_Pagamento_1
-    FOREIGN KEY (fk_Cartao_Credito_id)
-    REFERENCES Cartao_Credito (id)
+    FOREIGN KEY (fk_Cartao_Credito_nro_cartao)
+    REFERENCES Cartao_Credito (nro_cartao)
     ON DELETE SET NULL;
  
 ALTER TABLE Forma_Pagamento ADD CONSTRAINT FK_Forma_Pagamento_2
