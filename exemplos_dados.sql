@@ -1,4 +1,4 @@
-/* Testado usando o PostgreSQL*/
+/* Testado no pgAdmin 4 com PostgreSQL 13*/
 
 INSERT INTO Produto (nome, preco, desconto, data_fim_desconto, descricao)
 VALUES
