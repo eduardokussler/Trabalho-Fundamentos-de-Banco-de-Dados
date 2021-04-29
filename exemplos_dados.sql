@@ -15,7 +15,7 @@ VALUES
     -- 6
     ('Cities: Skylines - Sunset Harbor', 28.99, 0, NULL, 'Este artigo requer o jogo base Cities: Skylines no Steam para poder ser jogado.'),
     -- 7
-    ('Comprar Cities: Skylines - City Startup Bundle ', 125.96, 0, NULL, NULL),
+    ('Cities: Skylines - City Startup Bundle ', 125.96, 0, NULL, NULL),
     -- 8
     ('Cities: Skylines - Green Cities', 25.99,0,NULL, 'Este artigo requer o jogo base Cities: Skylines no Steam para poder ser jogado.'),
     -- 9

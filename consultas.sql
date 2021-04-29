@@ -30,3 +30,41 @@ SELECT * FROM Jogo
 INNER JOIN Dlc ON Jogo.id = Dlc.fk_Jogo_id
 INNER JOIN App_infos AS A ON A.id = Dlc.id
 INNER JOIN App_infos AS B ON B.id = Jogo.id;
+
+-- Preco dos pacotes se os jogos do pacote forem comprados separadamente
+SELECT Pacote.id, SUM(App_infos.preco_sem_desconto) AS preco_Pacote
+FROM App_infos INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
+INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
+GROUP BY Pacote.id
+ORDER BY preco_Pacote DESC;
+
+-- Numero de jogos de um determinado genero, no caso abaixo RPG
+SELECT COUNT(App_infos.id) AS Num_apps
+FROM Classificacao INNER JOIN App_infos ON App_infos.id = Classificacao.fk_App_id
+INNER JOIN Genero on Genero.id = Classificacao.fk_Genero_id
+GROUP BY Genero.nome
+HAVING Genero.nome = 'RPG';
+
+
+-- Jogos com 2 generos, no caso abaixo de RPG e Ação
+SELECT App_infos.nome
+FROM App_infos INNER JOIN Classificacao ON App_infos.id = Classificacao.fk_App_id
+INNER JOIN Genero on Genero.id = Classificacao.fk_Genero_id
+WHERE Genero.nome = 'RPG' AND App_infos.id IN (
+  SELECT App_infos.id
+  FROM App_infos INNER JOIN Classificacao ON App_infos.id = Classificacao.fk_App_id
+  INNER JOIN Genero on Genero.id = Classificacao.fk_Genero_id
+  WHERE Genero.nome = 'Ação'
+);
+
+-- Jogos com 2 categorias, no caso Um jogador e Cooperativo Online
+
+SELECT App_infos.nome
+FROM App_infos INNER JOIN Categorizacao ON App_infos.id = Categorizacao.fk_App_id
+INNER JOIN Categoria on Categoria.id = Categorizacao.fk_Categoria_id
+WHERE Categoria.nome = 'Um Jogador' AND App_infos.id IN (
+  SELECT App_infos.id
+  FROM App_infos INNER JOIN Categorizacao ON App_infos.id = Categorizacao.fk_App_id
+  INNER JOIN Categoria on Categoria.id = Categorizacao.fk_Categoria_id
+  WHERE Categoria.nome = 'Cooperativo Online'
+);
