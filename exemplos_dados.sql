@@ -245,6 +245,6 @@ VALUES
 
 INSERT INTO Item_comprado (fk_Produto_id, fk_Compra_id, desconto, valor_original)
 VALUES
-    (4, 1, 0, 55),
+    (7, 1, 0, 125.96),
     (9, 2, 50, 80),
     (12, 3, 50, 60);
