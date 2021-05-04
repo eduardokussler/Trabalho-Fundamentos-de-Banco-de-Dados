@@ -77,6 +77,20 @@ INNER JOIN Categoria on Categoria.id = Categorizacao.fk_Categoria_id
 WHERE Categoria.nome = 'Um Jogador' AND App_infos.id IN (
   SELECT App_infos.id
   FROM App_infos INNER JOIN Categorizacao ON App_infos.id = Categorizacao.fk_App_id
-  INNER JOIN Categoria on Categoria.id = Categorizacao.fk_Categoria_id
+  INNER JOIN Categoria ON Categoria.id = Categorizacao.fk_Categoria_id
   WHERE Categoria.nome = 'Cooperativo Online'
 );
+
+-- Bundles em que todos os jogos sejam de um certo genero, no caso Simulação
+SELECT Produto.nome
+FROM Produto NATURAL JOIN Pacote as BUNDLE
+WHERE NOT EXISTS (
+  SELECT *
+  FROM App_infos INNER JOIN Classificacao ON App_infos.id = Classificacao.fk_App_id
+  INNER JOIN Genero on Genero.id = Classificacao.fk_Genero_id
+  WHERE Genero.nome = 'Simulação' AND App_infos.id NOT IN (
+    SELECT App_infos.id 
+    FROM App_infos INNER JOIN Composicao on Composicao.fk_App_id = App_infos.id
+    WHERE Composicao.fk_Pacote_id = BUNDLE.id
+  ) 
+)
