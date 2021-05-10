@@ -146,6 +146,23 @@ INNER JOIN Genero ON Genero.id = Classificacao.fk_Genero_id
 GROUP BY Genero.nome
 HAVING Genero.nome = 'RPG';
 
+-- Apps que tem o mesmo genero que outro App
+-- nesse caso o App com id = 1
+SELECT App_infos.id, App_infos.nome FROM App_infos
+WHERE App_infos.id <> 1 AND NOT EXISTS (
+  SELECT * FROM App
+  INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+  INNER JOIN Genero ON Genero.id = fk_Genero_id
+  INNER JOIN Produto ON Produto.id = App.id
+  WHERE App.id = 1 AND Genero.id NOT IN (
+    SELECT Genero.id FROM App
+    INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+    INNER JOIN Genero ON Genero.id = fk_Genero_id
+    INNER JOIN Produto ON Produto.id = App.id
+    WHERE App.id = App_infos.id
+  )
+);
+
 -- Bundles em que todos os jogos sejam de um certo genero, no caso Simulação
 SELECT Produto.nome
 FROM Produto NATURAL JOIN Pacote as BUNDLE
