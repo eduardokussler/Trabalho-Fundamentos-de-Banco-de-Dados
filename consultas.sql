@@ -9,6 +9,7 @@ LEFT JOIN Avaliacoes ON App.id = Avaliacoes.fk_App_id
 GROUP BY Produto.id, app.id, emp1.id, emp2.id
 ORDER BY id;
 
+
 -- Consulta com Group By, Having, Subquery
 -- Tags mais populares de um App (4)
 SELECT App.id, Produto.nome, C.tag FROM App
@@ -53,6 +54,24 @@ WHERE Categoria.nome = 'Um Jogador' AND App_infos.id IN (
   WHERE Categoria.nome = 'Cooperativo Online'
 );
 
+-- Consulta com Subquery, Not Exists
+-- Apps que tem o mesmo genero que outro App
+-- nesse caso o App com id = 1
+SELECT App_infos.id, App_infos.nome FROM App_infos
+WHERE App_infos.id <> 1 AND NOT EXISTS (
+  SELECT * FROM App
+  INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+  INNER JOIN Genero ON Genero.id = fk_Genero_id
+  INNER JOIN Produto ON Produto.id = App.id
+  WHERE App.id = 1 AND Genero.id NOT IN (
+    SELECT Genero.id FROM App
+    INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+    INNER JOIN Genero ON Genero.id = fk_Genero_id
+    INNER JOIN Produto ON Produto.id = App.id
+    WHERE App.id = App_infos.id
+  )
+);
+
 
 -- CONSULTAS VARIADAS
 -- Apps de um Pacote
@@ -67,7 +86,7 @@ INNER JOIN Dlc ON Jogo.id = Dlc.fk_Jogo_id
 INNER JOIN App_infos AS A ON A.id = Jogo.id
 INNER JOIN App_infos AS B ON B.id = Dlc.id;
 
--- Apps na conta de um usuario(mostrando apps que foram comprados em pacotes)
+-- Apps na conta de um usuario (mostrando apps que foram comprados em pacotes)
 SELECT Usuario.id AS id_usuario, App_infos.id AS id_app, App_infos.nome, desenvolvedora, distribuidora FROM Usuario
 INNER JOIN Compra ON Usuario.id = Compra.fk_Usuario_id
 INNER JOIN Item_comprado ON Item_comprado.fk_Compra_id = Compra.id
@@ -82,7 +101,7 @@ SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_des
 INNER JOIN Produto AS A ON A.id = Pacote.id;
 
 -- Informações de produtos
-SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_desconto, A.desconto AS pacote_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS pacote_preco_com_desconto, A.data_fim_desconto AS pacote_data_fim_desconto, A.descricao AS pacote_descricao FROM Produto AS A;
+SELECT A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A;
 
 -- Categorias de um App
 SELECT App.id AS app_id, Produto.nome AS app_nome, Categoria.nome AS categoria FROM App
@@ -139,29 +158,12 @@ INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
 INNER JOIN item_comprado ON Compra.id = item_comprado.fk_Compra_id
 INNER JOIN Produto ON Produto.id = fk_Produto_id;
 
--- Numero de jogos de um determinado genero, no caso abaixo RPG
+-- Numero de Apps de um determinado genero, no caso abaixo RPG
 SELECT COUNT(App_infos.id) AS Num_apps
 FROM Classificacao INNER JOIN App_infos ON App_infos.id = Classificacao.fk_App_id
 INNER JOIN Genero ON Genero.id = Classificacao.fk_Genero_id
 GROUP BY Genero.nome
 HAVING Genero.nome = 'RPG';
-
--- Apps que tem o mesmo genero que outro App
--- nesse caso o App com id = 1
-SELECT App_infos.id, App_infos.nome FROM App_infos
-WHERE App_infos.id <> 1 AND NOT EXISTS (
-  SELECT * FROM App
-  INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
-  INNER JOIN Genero ON Genero.id = fk_Genero_id
-  INNER JOIN Produto ON Produto.id = App.id
-  WHERE App.id = 1 AND Genero.id NOT IN (
-    SELECT Genero.id FROM App
-    INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
-    INNER JOIN Genero ON Genero.id = fk_Genero_id
-    INNER JOIN Produto ON Produto.id = App.id
-    WHERE App.id = App_infos.id
-  )
-);
 
 -- Bundles em que todos os jogos sejam de um certo genero, no caso Simulação
 SELECT Produto.nome
