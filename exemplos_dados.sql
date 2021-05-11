@@ -167,6 +167,11 @@ VALUES
     (12, 1, 'Plataforma'),
     (12, 2, 'Mario'),
     (9, 1, 'Hack and Slash'),
+    (9, 1, 'Mitologia'),
+    (9, 1, 'Grecia'),
+    (9, 2, 'Mitologia'),
+    (9, 2, 'Isometrico'),
+    (9, 2, 'RogueLite'),
     (9, 2, 'Hack  & Slash');
 
 INSERT INTO Avaliacoes (fk_App_id, fk_Usuario_id, recomenda, comentario)
