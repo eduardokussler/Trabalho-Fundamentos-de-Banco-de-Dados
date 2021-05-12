@@ -170,7 +170,7 @@ INNER JOIN LATERAL (
 
 -- Consulta com Group By, Visão
 -- Preco dos pacotes se os jogos do pacote forem comprados separadamente
-SELECT Pacote.id, SUM(App_infos.preco_sem_desconto) AS preco_Pacote
+SELECT Pacote.id, SUM(App_infos.preco_com_desconto) AS preco_Pacote
 FROM App_infos INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
 INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
 GROUP BY Pacote.id
@@ -198,6 +198,11 @@ WHERE App_infos.id <> 1 AND NOT EXISTS (
 
 
 -- CONSULTAS VARIADAS
+
+-- Informações de pacotes
+SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_desconto, A.desconto AS pacote_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS pacote_preco_com_desconto, A.data_fim_desconto AS pacote_data_fim_desconto, A.descricao AS pacote_descricao FROM Pacote
+INNER JOIN Produto AS A ON A.id = Pacote.id;
+
 -- Apps de um Pacote
 SELECT A.id AS pacote_id, A.nome AS pacote_nome, B.id AS app_id, B.nome  AS app_nome, B.preco_sem_desconto AS app_preco_sem_desconto, B.preco_com_desconto AS app_preco_com_desconto, B.desconto AS app_desconto FROM Pacote
 INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
@@ -219,10 +224,6 @@ LEFT JOIN Composicao ON Composicao.fk_Pacote_id = Pacote.id
 INNER JOIN App_infos ON Item_comprado.fk_Produto_id = App_infos.id or Composicao.fk_App_id = App_infos.id
 ORDER BY App_infos.nome;
 
-
--- Informações de pacotes
-SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_desconto, A.desconto AS pacote_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS pacote_preco_com_desconto, A.data_fim_desconto AS pacote_data_fim_desconto, A.descricao AS pacote_descricao FROM Pacote
-INNER JOIN Produto AS A ON A.id = Pacote.id;
 
 -- Produtos no carrinho
 SELECT Usuario.id, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A

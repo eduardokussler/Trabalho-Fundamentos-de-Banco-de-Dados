@@ -222,6 +222,48 @@ RETURN QUERY
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS busca_pacote_preco_separado;
+CREATE OR REPLACE FUNCTION busca_pacote_preco_separado(INPUT INTEGER) RETURNS TABLE(id INTEGER, diferenca NUMERIC(20,10), preco_separado_Pacote DECIMAL(6,2)) AS $$
+BEGIN
+RETURN QUERY
+  -- Preco dos pacotes se os jogos do pacote forem comprados separadamente
+  SELECT Pacote.id, SUM(App_infos.preco_com_desconto) - ROUND(CAST((100-Produto.desconto) AS NUMERIC(20,10))/100 * Produto.preco, 2) AS diferenca, SUM(App_infos.preco_com_desconto) AS preco_separado_Pacote
+  FROM App_infos INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
+  INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
+  INNER JOIN PRODUTO ON PRODUTO.id = pacote.id
+  WHERE Pacote.id = INPUT
+  GROUP BY Pacote.id, Produto.id
+  ORDER BY preco_separado_Pacote DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS busca_pacote_info;
+CREATE OR REPLACE FUNCTION busca_pacote_info(INPUT INTEGER) RETURNS TABLE(pacote_id INTEGER, pacote_nome VARCHAR(50), pacote_preco_sem_desconto NUMERIC(20,2), pacote_desconto SMALLINT, pacote_preco_com_desconto NUMERIC(20,2), pacote_data_fim_desconto TIMESTAMP, pacote_descricao VARCHAR(1000)) AS $$
+BEGIN
+RETURN QUERY
+    -- infos de um Pacote
+    SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_desconto, A.desconto AS pacote_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS pacote_preco_com_desconto, A.data_fim_desconto AS pacote_data_fim_desconto, A.descricao AS pacote_descricao FROM Pacote
+    INNER JOIN Produto AS A ON A.id = Pacote.id
+    WHERE A.id = INPUT;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+DROP FUNCTION IF EXISTS busca_pacote_apps;
+CREATE OR REPLACE FUNCTION busca_pacote_apps(INPUT INTEGER) RETURNS TABLE(app_id INTEGER, app_nome VARCHAR(50), app_desconto SMALLINT, app_preco_com_desconto NUMERIC(20,2)) AS $$
+BEGIN
+RETURN QUERY
+    -- Apps de um Pacote
+    SELECT B.id AS app_id, B.nome  AS app_nome, B.desconto AS app_desconto, B.preco_com_desconto AS app_preco_com_desconto FROM Pacote
+    INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
+    INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+    INNER JOIN App_infos AS B ON B.id = Comp.fk_App_id
+    WHERE A.id = INPUT;    
+END;
+$$ LANGUAGE plpgsql;
+
 -- verificar compras, apps, na conta
 
 -- adicionar ao carrinho

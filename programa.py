@@ -281,13 +281,13 @@ class Store:
         inputson = args[0]
         tab_jogos, lixo = self.get_columns(f'SELECT * FROM Jogo WHERE id = {inputson}')
         tab_dlc, lixo = self.get_columns(f'SELECT * FROM dlc WHERE id = {inputson}')
-        print(tab_jogos)
         if(len(tab_jogos) != 0):
             self.abrir_jogo(inputson)
         elif(len(tab_dlc) != 0):
             self.abrir_dlc(inputson)
         else:
-            pass
+            self.abrir_pacote(inputson)
+
 
     def abrir_dlc(self,inputson):
         pagina_app_app_infos = f'''SELECT * FROM pagina_app_app_info({inputson}) '''
@@ -334,7 +334,31 @@ class Store:
         print(tab.tabulate(infosAS,headers=apps_similares))
 
            
-        
+    def abrir_pacote(self, inputson):
+        busca_pacote_info = f'''SELECT * FROM busca_pacote_info({inputson}) '''
+        busca_pacote_apps =  f'''SELECT * FROM busca_pacote_apps({inputson}) '''
+        busca_pacote_preco_separado =  f'''SELECT * FROM busca_pacote_preco_separado({inputson}) '''''
+
+        infosI, informacoes = self.get_columns(busca_pacote_info) 
+        infosA,  apps= self.get_columns(busca_pacote_apps)
+        infosPS,  preco_separado = self.get_columns(busca_pacote_preco_separado)
+
+
+        descricao = infosI[0][-1]
+        infosI = [infosI[0][:-1]]
+        informacoes = informacoes[:-1]
+
+        print("Informações do Pacote")
+        print(tab.tabulate(infosI,headers=informacoes))
+        print(f"Descricao: {descricao}")
+        print()
+        print("\nInformações dos Apps do Pacote")
+        print(tab.tabulate(infosA,headers=apps))
+        #print(infosPS)
+        print()
+        print(f"O quanto economiza comprando o Pacote: {infosPS[0][1]}")
+        print(f"Preço se os Apps fossem comprados separadamente: {infosPS[0][2]}")
+         
     def get_columns(self, command):
         with self.connection.cursor() as cur:
             cur.execute(command)
