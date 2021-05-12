@@ -15,3 +15,4 @@ SELECT App.id, Produto.nome, C.tag FROM App
   WHERE App.id = app_id;
     END;
 $$ LANGUAGE plpgsql;
+

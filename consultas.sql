@@ -1,7 +1,7 @@
 -- VISÃO
 -- Visão com informações de um App
 CREATE VIEW App_infos AS
-SELECT Produto.id, Produto.nome, Produto.preco AS preco_sem_desconto, Produto.desconto, ROUND(CAST((100-Produto.desconto) AS NUMERIC(20,10))/100 * Produto.preco, 2) as preco_com_desconto, Produto.data_fim_desconto,App.data_lancamento, emp1.nome AS desenvolvedora, emp2.nome AS distribuidora,COUNT(avaliacoes.recomenda) AS quant_avaliacoes, ROUND(CAST(SUM(CASE WHEN Avaliacoes.recomenda = true THEN 1 END) AS DECIMAL(20,10))/COUNT(*),2) AS perc_avaliacoes, Produto.descricao FROM App
+SELECT Produto.id, Produto.nome, Produto.preco AS preco_sem_desconto, Produto.desconto, ROUND(CAST((100-Produto.desconto) AS NUMERIC(20,10))/100 * Produto.preco, 2) as preco_com_desconto, Produto.data_fim_desconto,App.data_lancamento, emp1.nome AS desenvolvedora, emp2.nome AS distribuidora,COUNT(avaliacoes.recomenda) AS quant_avaliacoes, ROUND(CAST(SUM(CASE WHEN Avaliacoes.recomenda = true THEN 1 ELSE 0 END) AS DECIMAL(20,10))/COUNT(*),2) AS perc_avaliacoes, Produto.descricao FROM App
 INNER JOIN Produto ON APP.id = Produto.id
 INNER JOIN Empresa AS emp1 ON App.fk_Empresa_id_desenvolvedora = emp1.id
 INNER JOIN Empresa AS emp2 ON App.fk_Empresa_id_distribuidora = emp2.id
@@ -9,26 +9,8 @@ LEFT JOIN Avaliacoes ON App.id = Avaliacoes.fk_App_id
 GROUP BY Produto.id, app.id, emp1.id, emp2.id
 ORDER BY id;
 
-
--- Consulta com Group By, Having, Subquery
--- Tags mais populares de um App (4)
-SELECT App.id, Produto.nome, C.tag FROM App
-INNER JOIN Produto ON App.id = Produto.id 
-INNER JOIN LATERAL (
-  SELECT tags.fk_app_id as id, Tags.tag as tag, count(tag) FROM Tags
-  GROUP BY tags.fk_app_id, tags.tag
-  HAVING tags.fk_app_id = app.id
-  ORDER BY count(tag)
-  LIMIT 4
-) AS C ON App.id = C.id;
-
--- Consulta com Group By, Visão
--- Preco dos pacotes se os jogos do pacote forem comprados separadamente
-SELECT Pacote.id, SUM(App_infos.preco_sem_desconto) AS preco_Pacote
-FROM App_infos INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
-INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
-GROUP BY Pacote.id
-ORDER BY preco_Pacote DESC;
+-- Informações de produtos
+SELECT A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A;
 
 -- Consulta com Subquery, Visão
 -- Jogos com 2 generos, no caso abaixo de RPG e Ação
@@ -53,6 +35,148 @@ WHERE Categoria.nome = 'Um Jogador' AND App_infos.id IN (
   INNER JOIN Categoria ON Categoria.id = Categorizacao.fk_Categoria_id
   WHERE Categoria.nome = 'Cooperativo Online'
 );
+
+-- Categorias de um App
+SELECT App.id AS app_id, Produto.nome AS app_nome, Categoria.nome AS categoria FROM App
+INNER JOIN Categorizacao AS CAT ON APP.id = CAT.fk_App_id
+INNER JOIN Categoria ON Categoria.id = fk_Categoria_id
+INNER JOIN Produto ON Produto.id = App.id;
+
+-- Generos de um App
+SELECT App.id AS app_id, Produto.nome AS app_nome, Genero.nome AS genero FROM App
+INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+INNER JOIN Genero ON Genero.id = fk_Genero_id
+INNER JOIN Produto ON Produto.id = App.id;
+
+-- Generos de um pacote
+SELECT DISTINCT Pacote.id, Produto.nome, Genero.nome FROM Pacote
+INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
+INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
+INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
+INNER JOIN Genero ON Genero.id = fk_Genero_id
+INNER JOIN Produto ON Produto.id = Pacote.id;
+
+-- Categorias de um pacote
+SELECT DISTINCT Pacote.id, Produto.nome, Categoria.nome FROM Pacote
+INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
+INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
+INNER JOIN Categorizacao AS CAT ON APP.id = CAT.fk_App_id
+INNER JOIN Categoria ON Categoria.id = fk_Categoria_id
+INNER JOIN Produto ON Produto.id = Pacote.id;
+
+-- Desenvolvedores de um pacote
+SELECT DISTINCT Pacote.id, Produto.nome, APP.desenvolvedora FROM Pacote
+INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
+INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
+INNER JOIN Produto ON Produto.id = Pacote.id;
+
+-- Distribuidoras de um pacote
+SELECT DISTINCT Pacote.id, Produto.nome, APP.distribuidora FROM Pacote
+INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
+INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
+INNER JOIN Produto ON Produto.id = Pacote.id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Consulta com Group By, Having, Subquery
+-- Tags mais populares de um App (4)
+SELECT App.id, Produto.nome, C.tag FROM App
+INNER JOIN Produto ON App.id = Produto.id 
+INNER JOIN LATERAL (
+  SELECT tags.fk_app_id as id, Tags.tag as tag, count(tag) FROM Tags
+  GROUP BY tags.fk_app_id, tags.tag
+  HAVING tags.fk_app_id = app.id
+  ORDER BY count(tag)
+  LIMIT 4
+) AS C ON App.id = C.id;
+
+-- Consulta com Group By, Visão
+-- Preco dos pacotes se os jogos do pacote forem comprados separadamente
+SELECT Pacote.id, SUM(App_infos.preco_sem_desconto) AS preco_Pacote
+FROM App_infos INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
+INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
+GROUP BY Pacote.id
+ORDER BY preco_Pacote DESC;
+
+
 
 -- Consulta com Subquery, Not Exists
 -- Apps que tem o mesmo genero que outro App
@@ -99,53 +223,6 @@ ORDER BY App_infos.nome;
 -- Informações de pacotes
 SELECT A.id AS pacote_id, A.nome AS pacote_nome, A.preco AS pacote_preco_sem_desconto, A.desconto AS pacote_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS pacote_preco_com_desconto, A.data_fim_desconto AS pacote_data_fim_desconto, A.descricao AS pacote_descricao FROM Pacote
 INNER JOIN Produto AS A ON A.id = Pacote.id;
-
--- Informações de produtos
-SELECT A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A;
-
--- Categorias de um App
-SELECT App.id AS app_id, Produto.nome AS app_nome, Categoria.nome AS categoria FROM App
-INNER JOIN Categorizacao AS CAT ON APP.id = CAT.fk_App_id
-INNER JOIN Categoria ON Categoria.id = fk_Categoria_id
-INNER JOIN Produto ON Produto.id = App.id;
-
--- Generos de um App
-SELECT App.id AS app_id, Produto.nome AS app_nome, Genero.nome AS genero FROM App
-INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
-INNER JOIN Genero ON Genero.id = fk_Genero_id
-INNER JOIN Produto ON Produto.id = App.id;
-
--- Generos de um pacote
-SELECT DISTINCT Pacote.id, Produto.nome, Genero.nome FROM Pacote
-INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
-INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
-INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
-INNER JOIN Classificacao AS CLA ON APP.id = CLA.fk_App_id
-INNER JOIN Genero ON Genero.id = fk_Genero_id
-INNER JOIN Produto ON Produto.id = Pacote.id;
-
--- Categorias de um pacote
-SELECT DISTINCT Pacote.id, Produto.nome, Categoria.nome FROM Pacote
-INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
-INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
-INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
-INNER JOIN Categorizacao AS CAT ON APP.id = CAT.fk_App_id
-INNER JOIN Categoria ON Categoria.id = fk_Categoria_id
-INNER JOIN Produto ON Produto.id = Pacote.id;
-
--- Desenvolvedores de um pacote
-SELECT DISTINCT Pacote.id, Produto.nome, APP.desenvolvedora FROM Pacote
-INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
-INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
-INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
-INNER JOIN Produto ON Produto.id = Pacote.id;
-
--- Distribuidoras de um pacote
-SELECT DISTINCT Pacote.id, Produto.nome, APP.distribuidora FROM Pacote
-INNER JOIN Composicao AS Comp ON Pacote.id = Comp.fk_Pacote_id
-INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
-INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
-INNER JOIN Produto ON Produto.id = Pacote.id;
 
 -- Produtos no carrinho
 SELECT Usuario.id, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A
