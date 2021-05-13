@@ -44,6 +44,9 @@ class Store:
             "busca_pacote_genero": self.busca_pacote_genero,
             "busca_pacote_categoria": self.busca_pacote_categoria,
             "abrir_pagina": self.abrir_pagina,
+            "carrinho": self.carrinho,
+            "meus_apps": self.meus_apps,
+            "minhas_compras": self.minhas_compras,
         }
 
         with open('token.txt','r') as f:
@@ -142,6 +145,77 @@ class Store:
                 self.user = user
             else:
                 raise CommandError("Usuario não está na base de dados")
+
+    def carrinho(self, args):
+        if len(args) != 0:
+            raise IncorrectNumberOfArgs("carrinho não precisa de argumentos")
+        if self.user == 0:
+            raise CommandError("Sistema não possui carrinho")
+        inputson = self.user
+        busca_carrinho_pacote_apps = f'''SELECT * FROM busca_carrinho_pacote_apps({inputson}) '''
+        busca_carrinho_produtos =  f'''SELECT * FROM busca_carrinho_produtos({inputson}) '''
+        busca_carrinho_produtos_preco = f'''SELECT * FROM busca_carrinho_produtos_preco({inputson}) '''
+
+        infosPA, headersPA = self.get_columns(busca_carrinho_pacote_apps) 
+        infosP,  headersP = self.get_columns(busca_carrinho_produtos)
+        infosPP, headersPP = self.get_columns(busca_carrinho_produtos_preco)
+
+        idsProds = [i[0] for i in infosP]
+        #(id_prods, nome_apps)
+        nomes_apps_com_id_prods = [(i[0],i[1]) for i in infosPA]
+
+        print("Produtos no carrinho")
+        for i in range(len(infosP)):
+            print(tab.tabulate([infosP[i]],headers=headersP))
+            prods_nesse_pacote = [j[1] for j in nomes_apps_com_id_prods if j[0] == infosP[i][0]]
+            if (len(prods_nesse_pacote) != 0):
+                print("Produtos nesse pacote: ", end = '')        
+                print(", ".join(prods_nesse_pacote))
+        preco = infosPP[0][0]
+        print(f"\nPreço total: {preco}")
+
+    def minhas_compras(self, args):
+        if len(args) != 0:
+            raise IncorrectNumberOfArgs("minhas_compras não precisa de argumentos")
+        if self.user == 0:
+            raise CommandError("Sistema não possui compras")
+        inputson = self.user
+        busca_usuario_itens_comprados = f'''SELECT * FROM busca_usuario_itens_comprados({inputson}) '''
+        busca_usuario_compras =  f'''SELECT * FROM busca_usuario_compras({inputson}) '''
+
+        infosIC, headersIC = self.get_columns(busca_usuario_itens_comprados) 
+        infosC,  headersC = self.get_columns(busca_usuario_compras)
+
+        #id_compra, id_prod , nome, preco_com_desconto
+        id_compras = [i[0] for i in infosC]
+        #(id_compra, id_prod , nome, preco_com_desconto)
+        infos_itens_comprados = [[i[0],(i[1],i[2],i[3],i[4])] for i in infosIC]
+        print("Minhas Compras: ")
+        for i in range(len(infosC)):
+            #print(tab.tabulate([infosC[i]],headers=headersC))
+            print(f"{headersC[0].upper()}:{infosC[i][0]} ")
+            print(f"{headersC[1]}:{infosC[i][1]} ")
+            print(f"{headersC[2]}:{infosC[i][2]} ")
+            print(f"{headersC[3]}:{infosC[i][3]} ")
+            print()
+            prods_nessa_compra = [j[1] for j in infos_itens_comprados if j[0] == infosC[i][0]]
+            print("Produtos nessa Compra: ")        
+            print(tab.tabulate(prods_nessa_compra,headers=headersIC[1:]))
+
+            print()
+            #print(", ".join(prods_nesse_compra))
+
+    def meus_apps(self, args):
+        if len(args) != 0:
+            raise IncorrectNumberOfArgs("meus_apps não precisa de argumentos")
+        if self.user == 0:
+            raise CommandError("Sistema não possui apps")
+        inputson = self.user
+        busca_usuario_apps = f'''SELECT * FROM busca_usuario_apps({inputson}) '''
+
+        infosA, headersA = self.get_columns(busca_usuario_apps) 
+        print(tab.tabulate(infosA,headers=headersA))
+        
 
     def exit(self, args):
         '''

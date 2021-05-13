@@ -240,7 +240,8 @@ INSERT INTO Carrinho (fk_Produto_id, fk_Usuario_id)
 VALUES
     (1,1),
     (2,1),
-    (3,1);
+    (3,1),
+    (7,2);
 
 INSERT INTO Compra (data, total, fk_Usuario_id, fk_Cartao_Credito_id, aprovado)
 VALUES
@@ -252,4 +253,5 @@ INSERT INTO Item_comprado (fk_Produto_id, fk_Compra_id, desconto, valor_original
 VALUES
     (7, 1, 0, 125.96),
     (9, 2, 50, 80),
-    (12, 3, 50, 60);
+    (12, 3, 50, 60),
+    (3, 3, 100, 0);

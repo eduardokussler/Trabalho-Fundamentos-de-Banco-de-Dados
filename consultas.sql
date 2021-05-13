@@ -80,82 +80,6 @@ INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
 INNER JOIN App_infos AS APP ON APP.id = Comp.fk_App_id
 INNER JOIN Produto ON Produto.id = Pacote.id;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- Consulta com Group By, Having, Subquery
 -- Tags mais populares de um App (4)
 SELECT App.id, Produto.nome, C.tag FROM App
@@ -215,6 +139,25 @@ INNER JOIN Dlc ON Jogo.id = Dlc.fk_Jogo_id
 INNER JOIN App_infos AS A ON A.id = Jogo.id
 INNER JOIN App_infos AS B ON B.id = Dlc.id;
 
+-- Produtos no carrinho
+SELECT Usuario.id, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A
+INNER JOIN Carrinho ON A.id = Carrinho.fk_Produto_id
+INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id;
+
+-- Soma dos produtos no carrinho
+SELECT Produto.id, Produto.nome, SUM(ROUND(CAST((100-Produto.desconto) AS NUMERIC(20,2))/100 * Produto.preco, 2)) AS produto_preco_total
+FROM Produto
+INNER JOIN Carrinho ON Produto.id = Carrinho.fk_Produto_id
+INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id
+WHERE Usuario.id = 1
+GROUP BY Produto.id;
+
+-- Compras de um usuario
+SELECT usuario.id AS usuario_id, Compra.id as compra_id, compra.aprovado AS status, compra.data AS data, compra.total AS total, item_comprado.valor_original AS preco_sem_desconto, item_comprado.desconto AS desconto, ROUND(CAST((100-item_comprado.desconto) AS NUMERIC(20,10))/100 * item_comprado.valor_original, 2) AS preco_com_desconto FROM usuario
+INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
+INNER JOIN item_comprado ON Compra.id = item_comprado.fk_Compra_id
+INNER JOIN Produto ON Produto.id = fk_Produto_id;
+
 -- Apps na conta de um usuario (mostrando apps que foram comprados em pacotes)
 SELECT Usuario.id AS id_usuario, App_infos.id AS id_app, App_infos.nome, desenvolvedora, distribuidora FROM Usuario
 INNER JOIN Compra ON Usuario.id = Compra.fk_Usuario_id
@@ -225,16 +168,18 @@ INNER JOIN App_infos ON Item_comprado.fk_Produto_id = App_infos.id or Composicao
 ORDER BY App_infos.nome;
 
 
--- Produtos no carrinho
-SELECT Usuario.id, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao FROM Produto AS A
-INNER JOIN Carrinho ON A.id = Carrinho.fk_Produto_id
-INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id;
 
--- Compras de um usuario
-SELECT usuario.id AS id, compra.aprovado AS status, compra.data AS data, compra.total AS total, item_comprado.valor_original AS preco_sem_desconto, item_comprado.desconto AS desconto, ROUND(CAST((100-item_comprado.desconto) AS NUMERIC(20,10))/100 * item_comprado.valor_original, 2) AS preco_com_desconto FROM usuario
-INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
-INNER JOIN item_comprado ON Compra.id = item_comprado.fk_Compra_id
-INNER JOIN Produto ON Produto.id = fk_Produto_id;
+
+
+
+
+
+
+
+
+-- DESCARTADAS
+
+
 
 -- Numero de Apps de um determinado genero, no caso abaixo RPG
 SELECT COUNT(App_infos.id) AS Num_apps
