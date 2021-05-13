@@ -172,7 +172,13 @@ VALUES
     (9, 2, 'Mitologia'),
     (9, 2, 'Isometrico'),
     (9, 2, 'RogueLite'),
-    (9, 2, 'Hack  & Slash');
+    (9, 3, 'RogueLite'),
+    (9, 2, 'Hack  & Slash'),
+    (9, 2, 'Hack and Slash'),
+    (9, 3, 'Hack and Slash'),
+    (9, 1, 'Roguelike'),
+    (9, 2, 'Roguelike'), 
+    (9, 3, 'Roguelike');
 
 INSERT INTO Avaliacoes (fk_App_id, fk_Usuario_id, recomenda, comentario)
 VALUES

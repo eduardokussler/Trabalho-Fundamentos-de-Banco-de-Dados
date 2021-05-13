@@ -235,11 +235,11 @@ class Store:
             raise IncorrectNumberOfArgs("busca_nome só precisa de 1 argumento")
         
         name = args[0]
-        print(name)
+        #print(name)
         command = f'''SELECT * FROM busca_nome('{name}') '''
-        print(command)
+        #print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
+        #print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_app_genero(self, args):

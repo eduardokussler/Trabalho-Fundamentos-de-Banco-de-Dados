@@ -88,7 +88,7 @@ INNER JOIN LATERAL (
   SELECT tags.fk_app_id as id, Tags.tag as tag, count(tag) FROM Tags
   GROUP BY tags.fk_app_id, tags.tag
   HAVING tags.fk_app_id = app.id
-  ORDER BY count(tag)
+  ORDER BY count(tag) DESC
   LIMIT 4
 ) AS C ON App.id = C.id;
 

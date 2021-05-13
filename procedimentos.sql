@@ -215,7 +215,7 @@ RETURN QUERY
     SELECT tags.fk_app_id as id, Tags.tag as tag, count(Tags.tag) FROM Tags
     GROUP BY tags.fk_app_id, tags.tag
     HAVING tags.fk_app_id = app.id
-    ORDER BY count(Tags.tag)
+    ORDER BY count(Tags.tag) DESC
     LIMIT 4
     ) AS C ON App.id = C.id
     WHERE App.id = INPUT;
