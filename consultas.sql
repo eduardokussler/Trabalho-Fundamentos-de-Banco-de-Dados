@@ -205,8 +205,8 @@ INNER JOIN Carrinho AS C ON A.id = C.fk_Produto_id
 INNER JOIN USUARIO ON USUARIO.id = Carrinho.fk_Usuario_id;   
 
 
--- CONSULTAS QUE NÂO USAM 3 TABELAS MAS FORAM USADAS NO PROGRAMA
 
+-- CONSULTA QUE NÂO USA 3 TABELAS MAS FOI USADA NO PROGRAMA
 -- Informações de produtos
 -- INFORMAÇÔES:
 -- id, nome, preco sem desconto, desconto, preco com desconto,
@@ -214,6 +214,7 @@ INNER JOIN USUARIO ON USUARIO.id = Carrinho.fk_Usuario_id;
 SELECT A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao 
 FROM Produto AS A;
 
+-- CONSULTA QUE NÂO USA 3 TABELAS MAS FOI USADA NO PROGRAMA
 -- Informações de pacotes
 -- INFORMAÇÔES:
 -- id, nome, preco sem desconto, desconto, preco com desconto,

@@ -375,7 +375,7 @@ class Store:
         print(tab.tabulate(infosA,headers=informacoes))
         print(f"Descricao: {descricao}")
         print(f"Tags: {infosT}")
-        print("\nInformações dos Apps Similares")
+        print("\nInformações dos Apps Similares(com todos generos desse app)")
         print(tab.tabulate(infosAS,headers=apps_similares))
 
     def abrir_jogo(self,inputQuery):
