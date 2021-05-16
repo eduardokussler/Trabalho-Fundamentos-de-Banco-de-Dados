@@ -2,13 +2,6 @@ import psycopg2 as pg2
 import tabulate as tab
 
 
-# busca na loja
-# paginas de produtos, apps
-# verificar compras, apps, na conta
-
-# adicionar ao carrinho
-# comprar
-
 class InvalidCommand(Exception):
     pass
 
@@ -77,7 +70,13 @@ class Store:
                 print(e)
             except CommandError as e:
                 print(e)
-
+    
+    def get_columns(self, command):
+        with self.connection.cursor() as cur:
+            cur.execute(command)
+            infos = cur.fetchall()
+            colnames = [desc[0] for desc in cur.description]
+        return infos, colnames
 
     def run_command(self, string_input):
         '''
@@ -100,6 +99,16 @@ class Store:
         if not command:
             raise InvalidCommand("Comando invalido")
         command(args)
+
+    def exit(self, args):
+        '''
+        Sai do programa
+        '''
+        # testa se o numero de argumentos está correto
+        if len(args) != 0:
+            raise IncorrectNumberOfArgs("exit não precisa de argumentos")
+        # sai do programa
+        exit()
 
     def get_user(self, args):
         '''
@@ -149,19 +158,18 @@ class Store:
     def carrinho(self, args):
         if len(args) != 0:
             raise IncorrectNumberOfArgs("carrinho não precisa de argumentos")
-        if self.user == 0:
+        if self.is_system():
             raise CommandError("Sistema não possui carrinho")
-        inputson = self.user
-        busca_carrinho_pacote_apps = f'''SELECT * FROM busca_carrinho_pacote_apps({inputson}) '''
-        busca_carrinho_produtos =  f'''SELECT * FROM busca_carrinho_produtos({inputson}) '''
-        busca_carrinho_produtos_preco = f'''SELECT * FROM busca_carrinho_produtos_preco({inputson}) '''
+        inputQuery = self.user
+        busca_carrinho_pacote_apps = f'''SELECT * FROM busca_carrinho_pacote_apps({inputQuery}) '''
+        busca_carrinho_produtos =  f'''SELECT * FROM busca_carrinho_produtos({inputQuery}) '''
+        busca_carrinho_produtos_preco = f'''SELECT * FROM busca_carrinho_produtos_preco({inputQuery}) '''
 
         infosPA, headersPA = self.get_columns(busca_carrinho_pacote_apps) 
         infosP,  headersP = self.get_columns(busca_carrinho_produtos)
         infosPP, headersPP = self.get_columns(busca_carrinho_produtos_preco)
 
         idsProds = [i[0] for i in infosP]
-        #(id_prods, nome_apps)
         nomes_apps_com_id_prods = [(i[0],i[1]) for i in infosPA]
 
         print("Produtos no carrinho")
@@ -177,55 +185,45 @@ class Store:
     def minhas_compras(self, args):
         if len(args) != 0:
             raise IncorrectNumberOfArgs("minhas_compras não precisa de argumentos")
-        if self.user == 0:
+        if self.is_system():
             raise CommandError("Sistema não possui compras")
-        inputson = self.user
-        busca_usuario_itens_comprados = f'''SELECT * FROM busca_usuario_itens_comprados({inputson}) '''
-        busca_usuario_compras =  f'''SELECT * FROM busca_usuario_compras({inputson}) '''
+        inputQuery = self.user
+        busca_usuario_itens_comprados = f'''SELECT * FROM busca_usuario_itens_comprados({inputQuery}) '''
+        busca_usuario_compras =  f'''SELECT * FROM busca_usuario_compras({inputQuery}) '''
 
         infosIC, headersIC = self.get_columns(busca_usuario_itens_comprados) 
         infosC,  headersC = self.get_columns(busca_usuario_compras)
 
-        #id_compra, id_prod , nome, preco_com_desconto
+
         id_compras = [i[0] for i in infosC]
-        #(id_compra, id_prod , nome, preco_com_desconto)
+    
         infos_itens_comprados = [[i[0],(i[1],i[2],i[3],i[4])] for i in infosIC]
         print("Minhas Compras: ")
         for i in range(len(infosC)):
-            #print(tab.tabulate([infosC[i]],headers=headersC))
+
             print(f"{headersC[0].upper()}:{infosC[i][0]} ")
             print(f"{headersC[1]}:{infosC[i][1]} ")
             print(f"{headersC[2]}:{infosC[i][2]} ")
             print(f"{headersC[3]}:{infosC[i][3]} ")
+            print(f"{headersC[4]}:{infosC[i][4]} ")
             print()
             prods_nessa_compra = [j[1] for j in infos_itens_comprados if j[0] == infosC[i][0]]
             print("Produtos nessa Compra: ")        
             print(tab.tabulate(prods_nessa_compra,headers=headersIC[1:]))
 
             print()
-            #print(", ".join(prods_nesse_compra))
+
 
     def meus_apps(self, args):
         if len(args) != 0:
             raise IncorrectNumberOfArgs("meus_apps não precisa de argumentos")
-        if self.user == 0:
+        if self.is_system():
             raise CommandError("Sistema não possui apps")
-        inputson = self.user
-        busca_usuario_apps = f'''SELECT * FROM busca_usuario_apps({inputson}) '''
+        inputQuery = self.user
+        busca_usuario_apps = f'''SELECT * FROM busca_usuario_apps({inputQuery}) '''
 
         infosA, headersA = self.get_columns(busca_usuario_apps) 
         print(tab.tabulate(infosA,headers=headersA))
-        
-
-    def exit(self, args):
-        '''
-        Sai do programa
-        '''
-        # testa se o numero de argumentos está correto
-        if len(args) != 0:
-            raise IncorrectNumberOfArgs("exit não precisa de argumentos")
-        # sai do programa
-        exit()
 
     def busca_nome(self, args):
         '''
@@ -235,11 +233,8 @@ class Store:
             raise IncorrectNumberOfArgs("busca_nome só precisa de 1 argumento")
         
         name = args[0]
-        #print(name)
         command = f'''SELECT * FROM busca_nome('{name}') '''
-        #print(command)
         infos, colnames = self.get_columns(command)
-        #print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_app_genero(self, args):
@@ -286,8 +281,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_app_desenvolvedora só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_app_desenvolvedora('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_app_desenvolvedora('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -297,8 +292,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_app_distribuidora só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_app_distribuidora('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_app_distribuidora('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -308,8 +303,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_pacote_desenvolvedora só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_pacote_desenvolvedora('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_pacote_desenvolvedora('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -319,8 +314,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_pacote_distribuidora só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_pacote_distribuidora('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_pacote_distribuidora('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -330,8 +325,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_pacote_genero só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_pacote_genero('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_pacote_genero('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -341,8 +336,8 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_pacote_categoria só precisa de 1 argumento")
 
-        inputson = args[0]
-        command = f'''SELECT * FROM busca_pacote_categoria('{inputson}') '''
+        inputQuery = args[0]
+        command = f'''SELECT * FROM busca_pacote_categoria('{inputQuery}') '''
         print(command)
         infos, colnames = self.get_columns(command)
         print(infos)
@@ -352,21 +347,21 @@ class Store:
         if len(args) != 1:
             raise IncorrectNumberOfArgs("busca_pacote_categoria só precisa de 1 argumento")
 
-        inputson = args[0]
-        tab_jogos, lixo = self.get_columns(f'SELECT * FROM Jogo WHERE id = {inputson}')
-        tab_dlc, lixo = self.get_columns(f'SELECT * FROM dlc WHERE id = {inputson}')
+        inputQuery = args[0]
+        tab_jogos, lixo = self.get_columns(f'SELECT * FROM Jogo WHERE id = {inputQuery}')
+        tab_dlc, lixo = self.get_columns(f'SELECT * FROM dlc WHERE id = {inputQuery}')
         if(len(tab_jogos) != 0):
-            self.abrir_jogo(inputson)
+            self.abrir_jogo(inputQuery)
         elif(len(tab_dlc) != 0):
-            self.abrir_dlc(inputson)
+            self.abrir_dlc(inputQuery)
         else:
-            self.abrir_pacote(inputson)
+            self.abrir_pacote(inputQuery)
 
 
-    def abrir_dlc(self,inputson):
-        pagina_app_app_infos = f'''SELECT * FROM pagina_app_app_info({inputson}) '''
-        pagina_app_mesmos_generos =  f'''SELECT * FROM pagina_app_mesmos_generos({inputson}) '''
-        pagina_app_tags = f'''SELECT * FROM pagina_app_tags({inputson}) '''
+    def abrir_dlc(self,inputQuery):
+        pagina_app_app_infos = f'''SELECT * FROM pagina_app_app_info({inputQuery}) '''
+        pagina_app_mesmos_generos =  f'''SELECT * FROM pagina_app_mesmos_generos({inputQuery}) '''
+        pagina_app_tags = f'''SELECT * FROM pagina_app_tags({inputQuery}) '''
 
         infosA, informacoes = self.get_columns(pagina_app_app_infos) 
         infosAS,  apps_similares = self.get_columns(pagina_app_mesmos_generos)
@@ -383,11 +378,11 @@ class Store:
         print("\nInformações dos Apps Similares")
         print(tab.tabulate(infosAS,headers=apps_similares))
 
-    def abrir_jogo(self,inputson):
-        pagina_app_app_infos = f'''SELECT * FROM pagina_app_app_info({inputson}) '''
-        pagina_jogo_expansoes =  f'''SELECT * FROM pagina_jogo_expansoes({inputson}) '''
-        pagina_app_mesmos_generos =  f'''SELECT * FROM pagina_app_mesmos_generos({inputson}) '''
-        pagina_app_tags = f'''SELECT * FROM pagina_app_tags({inputson}) '''
+    def abrir_jogo(self,inputQuery):
+        pagina_app_app_infos = f'''SELECT * FROM pagina_app_app_info({inputQuery}) '''
+        pagina_jogo_expansoes =  f'''SELECT * FROM pagina_jogo_expansoes({inputQuery}) '''
+        pagina_app_mesmos_generos =  f'''SELECT * FROM pagina_app_mesmos_generos({inputQuery}) '''
+        pagina_app_tags = f'''SELECT * FROM pagina_app_tags({inputQuery}) '''
 
         infosA, informacoes = self.get_columns(pagina_app_app_infos) 
         infosE,  expansoes = self.get_columns(pagina_jogo_expansoes)
@@ -408,10 +403,10 @@ class Store:
         print(tab.tabulate(infosAS,headers=apps_similares))
 
            
-    def abrir_pacote(self, inputson):
-        busca_pacote_info = f'''SELECT * FROM busca_pacote_info({inputson}) '''
-        busca_pacote_apps =  f'''SELECT * FROM busca_pacote_apps({inputson}) '''
-        busca_pacote_preco_separado =  f'''SELECT * FROM busca_pacote_preco_separado({inputson}) '''''
+    def abrir_pacote(self, inputQuery):
+        busca_pacote_info = f'''SELECT * FROM busca_pacote_info({inputQuery}) '''
+        busca_pacote_apps =  f'''SELECT * FROM busca_pacote_apps({inputQuery}) '''
+        busca_pacote_preco_separado =  f'''SELECT * FROM busca_pacote_preco_separado({inputQuery}) '''''
 
         infosI, informacoes = self.get_columns(busca_pacote_info) 
         infosA,  apps= self.get_columns(busca_pacote_apps)
@@ -432,13 +427,6 @@ class Store:
         print()
         print(f"O quanto economiza comprando o Pacote: {infosPS[0][1]}")
         print(f"Preço se os Apps fossem comprados separadamente: {infosPS[0][2]}")
-         
-    def get_columns(self, command):
-        with self.connection.cursor() as cur:
-            cur.execute(command)
-            infos = cur.fetchall()
-            colnames = [desc[0] for desc in cur.description]
-        return infos, colnames
         
     
 

@@ -265,16 +265,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- adicionar ao carrinho
--- Apps de um Pacote no carrinho
-DROP PROCEDURE IF EXISTS adiciona_carrinho_produto;
-CREATE OR REPLACE PROCEDURE adiciona_carrinho_produto(Usuario_id INTEGER, Produto_id INTEGER) AS $$
-BEGIN
-    INSERT INTO Carrinho (fk_Produto_id, fk_Usuario_id) 
-    VALUES (Produto_id, Usuario_id);
-END;
-$$ LANGUAGE plpgsql;
-
 
 -- Apps de um Pacote no carrinho
 DROP FUNCTION IF EXISTS busca_carrinho_pacote_apps;
@@ -319,11 +309,12 @@ $$ LANGUAGE plpgsql;
 
 -- compras de um usuario
 DROP FUNCTION IF EXISTS busca_usuario_compras;
-CREATE OR REPLACE FUNCTION busca_usuario_compras(INPUT INTEGER) RETURNS TABLE(compra_id INTEGER, compra_status BOOLEAN, compra_data TIMESTAMP, compra_total DECIMAL(10,2)) AS $$
+CREATE OR REPLACE FUNCTION busca_usuario_compras(INPUT INTEGER) RETURNS TABLE(compra_id INTEGER,  num_cartao CHAR(19), compra_status BOOLEAN, compra_data TIMESTAMP, compra_total DECIMAL(10,2)) AS $$
 BEGIN
 RETURN QUERY
-    SELECT Compra.id as compra_id, compra.aprovado AS compra_status, compra.data AS compra_data, compra.total AS compra_total FROM usuario
+    SELECT Compra.id as compra_id, Cartao_Credito.nro_cartao as num_cartao, compra.aprovado AS compra_status, compra.data AS compra_data, compra.total AS compra_total FROM usuario
     INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
+    INNER JOIN Cartao_Credito ON Cartao_Credito.id = Compra.fk_Cartao_Credito_id
     WHERE usuario.id = INPUT;
 END;
 $$ LANGUAGE plpgsql;
@@ -359,12 +350,3 @@ RETURN QUERY
 	ORDER BY App_infos.nome;
 END;
 $$ LANGUAGE plpgsql;
-
--- comprar
---DROP PROCEDURE IF EXISTS comprar;
---CREATE OR REPLACE PROCEDURE comprar(Usuario_id INTEGER, data_agora TIMESTAMP, total DECIMAL(10,2)) AS $$
---BEGIN
---    INSERT INTO Compra (data, total, fk_Usuario_id, fk_Cartao_Credito_id, aprovado) 
---    VALUES (data_agora, Usuario_id);
---END;
---$$ LANGUAGE plpgsql;

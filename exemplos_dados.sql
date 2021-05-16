@@ -253,11 +253,13 @@ INSERT INTO Compra (data, total, fk_Usuario_id, fk_Cartao_Credito_id, aprovado)
 VALUES
     ('2021-03-28 13:00:00', 55, 1, 1, true),
     ('2021-03-28 13:00:00', 40, 1, 2, true),
-    ('2021-03-28 13:00:00', 30, 1, 1, false);
+    ('2021-03-28 13:00:00', 30, 1, 1, false)
+    ('2021-03-28 14:00:00', 36.99, 3, 1, true);
 
 INSERT INTO Item_comprado (fk_Produto_id, fk_Compra_id, desconto, valor_original)
 VALUES
     (7, 1, 0, 125.96),
     (9, 2, 50, 80),
     (12, 3, 50, 60),
+    (2, 4, 0, 36.99),
     (3, 3, 100, 0);
