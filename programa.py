@@ -243,18 +243,13 @@ class Store:
 
         if len(args) == 1:
             genero = args[0]
-            print(genero)
             command = f'''SELECT * FROM busca_app_genero('{genero}') '''
-            print(command)
             infos, colnames = self.get_columns(command)
-            print(infos)
             print(tab.tabulate(infos,headers=colnames))
 
         if len(args) == 2:
             command = f'''SELECT * FROM busca_app_2generos('{args[0]}', '{args[1]}') '''
-            print(command)
             infos, colnames = self.get_columns(command)
-            print(infos)
             print(tab.tabulate(infos,headers=colnames))
 
     def busca_app_categoria(self, args):
@@ -263,18 +258,13 @@ class Store:
 
         if len(args) == 1:
             categoria = args[0]
-            print(categoria)
             command = f'''SELECT * FROM busca_app_categoria('{categoria}') '''
-            print(command)
             infos, colnames = self.get_columns(command)
-            print(infos)
             print(tab.tabulate(infos,headers=colnames))
 
         if len(args) == 2:
             command = f'''SELECT * FROM busca_app_2categorias('{args[0]}', '{args[1]}') '''
-            print(command)
             infos, colnames = self.get_columns(command)
-            print(infos)
             print(tab.tabulate(infos,headers=colnames))
 
     def busca_app_desenvolvedora(self, args):
@@ -283,9 +273,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_app_desenvolvedora('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_app_distribuidora(self, args):
@@ -294,9 +282,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_app_distribuidora('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
         
     def busca_pacote_desenvolvedora(self, args):
@@ -305,9 +291,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_pacote_desenvolvedora('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_pacote_distribuidora(self, args):
@@ -316,9 +300,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_pacote_distribuidora('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_pacote_genero(self, args):
@@ -327,9 +309,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_pacote_genero('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def busca_pacote_categoria(self, args):
@@ -338,9 +318,7 @@ class Store:
 
         inputQuery = args[0]
         command = f'''SELECT * FROM busca_pacote_categoria('{inputQuery}') '''
-        print(command)
         infos, colnames = self.get_columns(command)
-        print(infos)
         print(tab.tabulate(infos,headers=colnames))
 
     def abrir_pagina(self, args):
@@ -399,7 +377,7 @@ class Store:
         print(f"Tags: {infosT}")
         print("\nInformações das Expansões")
         print(tab.tabulate(infosE,headers=expansoes))
-        print("\nInformações dos Apps Similares")
+        print("\nInformações dos Apps Similares(com todos generos desse app)")
         print(tab.tabulate(infosAS,headers=apps_similares))
 
            
