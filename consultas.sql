@@ -43,33 +43,6 @@ WHERE Categoria.nome = 'Um Jogador' AND App_infos.id IN (
   WHERE Categoria.nome = 'Cooperativo Online'
 );
 
--- Consulta com Group By, Visão
--- Preço dos pacotes e preço se os jogos dos pacotes fossem comprados separadamente
--- retorna id, nome, preço se apps forem comprados separadamente, preco e diferença entre os precos(separadamente - normal) dos pacotes
-SELECT Pacote.id, produto.nome, 
-SUM(App_infos.preco_com_desconto) AS preco_pacote_separadamente,
-ROUND(CAST((100-produto.desconto) AS NUMERIC(20,10))/100 * produto.preco, 2) as preco_pacote, 
-SUM(App_infos.preco_com_desconto) - ROUND(CAST((100-produto.desconto) AS NUMERIC(20,10))/100 * produto.preco, 2)as diferenca
-FROM App_infos 
-INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
-INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
-INNER JOIN PRODUTO ON PRODUTO.id = PAcote.id
-GROUP BY Pacote.id, produto.id
-ORDER BY preco_Pacote DESC;
-
--- Consulta com Group By, Having, Subquery
--- 4 Tags mais populares de um App
--- retorna id, nome e tags dos apps
-SELECT App.id, Produto.nome, C.tag FROM App
-INNER JOIN Produto ON App.id = Produto.id 
-INNER JOIN LATERAL (
-  SELECT tags.fk_app_id as id, Tags.tag as tag, count(tag) FROM Tags
-  GROUP BY tags.fk_app_id, tags.tag
-  HAVING tags.fk_app_id = app.id
-  ORDER BY count(tag) DESC
-  LIMIT 4
-) AS C ON App.id = C.id;
-
 -- Consulta com Subquery, Not Exists
 -- Apps que tem todos generos de outro App
 -- nesse caso o App com id = 1
@@ -85,6 +58,42 @@ WHERE App_infos.id <> 1 AND NOT EXISTS (
   )
 );
 
+-- Consulta com Group By, Having, Subquery
+-- 4 Tags mais populares de um App
+-- retorna id, nome e tags dos apps
+SELECT App.id, Produto.nome, C.tag FROM App
+INNER JOIN Produto ON App.id = Produto.id 
+INNER JOIN LATERAL (
+  SELECT tags.fk_app_id as id, Tags.tag as tag, count(tag) FROM Tags
+  GROUP BY tags.fk_app_id, tags.tag
+  HAVING tags.fk_app_id = app.id
+  ORDER BY count(tag) DESC
+  LIMIT 4
+) AS C ON App.id = C.id;
+
+-- Consulta com Group By, Visão
+-- Preço dos pacotes e preço se os jogos dos pacotes fossem comprados separadamente
+-- retorna id, nome, preço se apps forem comprados separadamente, preco e diferença entre os precos(separadamente - normal) dos pacotes
+SELECT Pacote.id, produto.nome, 
+SUM(App_infos.preco_com_desconto) AS preco_pacote_separadamente,
+ROUND(CAST((100-produto.desconto) AS NUMERIC(20,10))/100 * produto.preco, 2) as preco_pacote, 
+SUM(App_infos.preco_com_desconto) - ROUND(CAST((100-produto.desconto) AS NUMERIC(20,10))/100 * produto.preco, 2)as diferenca
+FROM App_infos 
+INNER JOIN Composicao ON Composicao.fk_App_id = App_infos.id
+INNER JOIN Pacote ON Composicao.fk_Pacote_id = Pacote.id
+INNER JOIN PRODUTO ON PRODUTO.id = PAcote.id
+GROUP BY Pacote.id, produto.id
+ORDER BY preco_Pacote DESC;
+
+-- Apps de um Pacote
+-- retorna id e nome do pacote
+--         id, nome, preco_sem_desconto, preco com desconto, desconto dos apps
+SELECT A.id AS pacote_id, A.nome AS pacote_nome, B.id AS app_id, B.nome  AS app_nome, B.preco_sem_desconto AS app_preco_sem_desconto, B.preco_com_desconto AS app_preco_com_desconto, B.desconto AS app_desconto 
+FROM Composicao AS Comp
+INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
+INNER JOIN App_infos AS B ON B.id = Comp.fk_App_id;
+
+
 -- Consulta com Group By
 -- Soma dos produtos no carrinho de um usuario, no caso o usuario com id 1, mas extendida para mais usuarios no programa
 -- retorna id, email , preco total no carrinho dos usuarios
@@ -95,7 +104,15 @@ INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id
 WHERE Usuario.id = 1
 GROUP BY USUARIO.id;
 
--- Apps nas contas dos usuario (mostrando apps que foram comprados em pacotes) e apenas mostrando apps que tiveram a compra aprovada
+-- Produtos no carrinho
+-- retorna id e email do usuario
+--         id, nome, preco_semdesconto, desconto, preco com desconto, data de fim do desconto e descrição dos produtos
+SELECT Usuario.id, Usuario.email, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao 
+FROM Produto AS A
+INNER JOIN Carrinho ON A.id = Carrinho.fk_Produto_id
+INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id;
+
+-- Apps nas contas dos usuarios (mostrando apps que foram comprados em pacotes) e apenas mostrando apps que tiveram a compra aprovada
 -- retorna id, email dos usuarios e id, nome, desenvolvedora, distribuidora dos apps
 SELECT Usuario.id AS id_usuario, Usuario.email, App_infos.id AS id_app, App_infos.nome as nome_app, desenvolvedora, distribuidora FROM Usuario
 INNER JOIN Compra ON Usuario.id = Compra.fk_Usuario_id
@@ -105,6 +122,14 @@ LEFT JOIN Composicao ON Composicao.fk_Pacote_id = Pacote.id
 INNER JOIN App_infos ON Item_comprado.fk_Produto_id = App_infos.id or Composicao.fk_App_id = App_infos.id
 WHERE Compra.aprovado = true
 ORDER BY App_infos.nome;
+
+-- Compras de usuarios
+-- retorna id, email do usuario
+--         id, cartao, status, data, valor da compra
+SELECT Usuario.id, Usuario.email, Compra.id as compra_id, Cartao_Credito.nro_cartao as num_cartao, compra.aprovado AS compra_status, compra.data AS compra_data, compra.total AS compra_total 
+FROM usuario
+INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
+INNER JOIN Cartao_Credito ON Cartao_Credito.id = Compra.fk_Cartao_Credito_id;
 
 -- Produtos comprados por usuarios(produtos de compras não aprovadas aparecem)
 -- retorna id e email do usuario
@@ -116,21 +141,8 @@ INNER JOIN Compra ON Usuario.id = Compra.fk_Usuario_id
 INNER JOIN item_comprado ON Compra.id = item_comprado.fk_Compra_id
 INNER JOIN Produto ON Produto.id = fk_Produto_id;
 
--- Compras de usuarios
--- retorna id, email do usuario
---         id, cartao, status, data, valor da compra
-SELECT Usuario.id, Usuario.email, Compra.id as compra_id, Cartao_Credito.nro_cartao as num_cartao, compra.aprovado AS compra_status, compra.data AS compra_data, compra.total AS compra_total 
-FROM usuario
-INNER JOIN Compra ON usuario.id = compra.fk_usuario_id
-INNER JOIN Cartao_Credito ON Cartao_Credito.id = Compra.fk_Cartao_Credito_id;
 
--- Apps de um Pacote
--- retorna id e nome do pacote
---         id, nome, preco_sem_desconto, preco com desconto, desconto dos apps
-SELECT A.id AS pacote_id, A.nome AS pacote_nome, B.id AS app_id, B.nome  AS app_nome, B.preco_sem_desconto AS app_preco_sem_desconto, B.preco_com_desconto AS app_preco_com_desconto, B.desconto AS app_desconto 
-FROM Composicao AS Comp
-INNER JOIN Produto AS A ON A.id = Comp.fk_Pacote_id
-INNER JOIN App_infos AS B ON B.id = Comp.fk_App_id;
+-- OUTRAS CONSULTAS UTILIZADAS NO PROGRAMA:
 
 -- Expansões dos Jogos
 -- retorna id e nome do jogo
@@ -140,13 +152,6 @@ FROM Dlc
 INNER JOIN App_infos AS A ON A.id = Dlc.fk_Jogo_id
 INNER JOIN App_infos AS B ON B.id = Dlc.id;
 
--- Produtos no carrinho
--- retorna id e email do usuario
---         id, nome, preco_semdesconto, desconto, preco com desconto, data de fim do desconto e descrição dos produtos
-SELECT Usuario.id, Usuario.email, A.id AS produto_id, A.nome AS produto_nome, A.preco AS produto_preco_sem_desconto, A.desconto AS produto_desconto, ROUND(CAST((100-A.desconto) AS NUMERIC(20,10))/100 * A.preco, 2) AS produto_preco_com_desconto, A.data_fim_desconto AS produto_data_fim_desconto, A.descricao AS produto_descricao 
-FROM Produto AS A
-INNER JOIN Carrinho ON A.id = Carrinho.fk_Produto_id
-INNER JOIN Usuario ON Usuario.id = Carrinho.fk_Usuario_id;
 
 -- Categorias de um App
 -- retorna id, nome e categorias dos apps
